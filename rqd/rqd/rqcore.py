@@ -741,9 +741,7 @@ class FrameAttendantThread(threading.Thread):
         self.rqlog = None
         self.recovery_mode = recovery_mode
 
-        log.info(vars(self.runFrame))
-        log.info(self.runFrame.log_dir)
-
+        # self.runFrame.os is empty here... Use alternative path detection method
         if rqd.rqconstants.ENABLE_LOG_DIR_PATHMAP:
             rf_log_root = None
             if self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_LINUX):
