@@ -748,7 +748,7 @@ class FrameAttendantThread(threading.Thread):
             src_log_root = None
 
             if runFrame.os:
-                src_log_root = getattr(rqd.rqconstants, f"LOG_ROOT_DIR_{runFrame.os}")
+                src_log_root = getattr(rqd.rqconstants,f"LOG_ROOT_DIR_{runFrame.os}")
 
             # Handling case where a job is submitted with os=''
             else:
@@ -759,7 +759,7 @@ class FrameAttendantThread(threading.Thread):
                 elif self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_DARWIN):
                     src_log_root = rqd.rqconstants.LOG_ROOT_DIR_DARWIN
 
-            if dst_log_root != src_log_root:
+            if dst_log_root == src_log_root:
                 log.debug("Source and destination log paths are identical. Skipping path mapping for %s", src_log_root)
             elif src_log_root:
                 log.debug("Path mapping enabled for log files. Replacing '%s' with '%s'", src_log_root, dst_log_root)
