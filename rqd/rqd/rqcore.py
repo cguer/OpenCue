@@ -741,20 +741,31 @@ class FrameAttendantThread(threading.Thread):
         self.rqlog = None
         self.recovery_mode = recovery_mode
 
-        # self.runFrame.os is empty here... Use alternative path detection method
+        # Cross-platform log_dir paths
         if rqd.rqconstants.ENABLE_LOG_DIR_PATHMAP:
-            rf_log_root = None
-            if self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_LINUX):
-                rf_log_root = rqd.rqconstants.LOG_ROOT_DIR_LINUX
-            elif self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_WINDOWS):
-                rf_log_root = rqd.rqconstants.LOG_ROOT_DIR_WINDOWS
-            elif self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_DARWIN):
-                rf_log_root = rqd.rqconstants.LOG_ROOT_DIR_DARWIN
+            dst_log_root_conf = f"LOG_ROOT_DIR_{platform.system().upper()}"
+            dst_log_root = getattr(rqd.rqconstants, dst_log_root_conf)
+            src_log_root = None
 
-            new_log_root = getattr(rqd.rqconstants, f"LOG_ROOT_DIR_{platform.system().upper()}")
+            if runFrame.os:
+                src_log_root = getattr(rqd.rqconstants, f"LOG_ROOT_DIR_{runFrame.os}")
 
-            log.info("Path mapping enabled for log files. Replacing '%s' with '%s'", rf_log_root, new_log_root)
-            self.runFrame.log_dir = self.runFrame.log_dir.replace(rf_log_root ,new_log_root)
+            # Handling case where a job is submitted with os=''
+            else:
+                if self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_LINUX):
+                    src_log_root = rqd.rqconstants.LOG_ROOT_DIR_LINUX
+                elif self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_WINDOWS):
+                    src_log_root = rqd.rqconstants.LOG_ROOT_DIR_WINDOWS
+                elif self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_DARWIN):
+                    src_log_root = rqd.rqconstants.LOG_ROOT_DIR_DARWIN
+
+            if dst_log_root != src_log_root:
+                log.debug("Source and destination log paths are identical. Skipping path mapping for %s", src_log_root)
+            elif src_log_root:
+                log.debug("Path mapping enabled for log files. Replacing '%s' with '%s'", src_log_root, dst_log_root)
+                self.runFrame.log_dir = self.runFrame.log_dir.replace(src_log_root ,dst_log_root)
+            else:
+                log.warning("Skipping path mapping. %s is empty or undefined", dst_log_root_conf)
 
     def __createEnvVariables(self):
         """Define the environmental variables for the frame"""
