@@ -741,6 +741,9 @@ class FrameAttendantThread(threading.Thread):
         self.rqlog = None
         self.recovery_mode = recovery_mode
 
+        # TODO: Change LOG_ROOT_DIR_ to a list/dict. To handle platforms other than hardcoded platform vars.
+        # TODO: Make sure LOG_ROOT_DIR_ has a default_os value. Mirror cuegui.yaml?
+        # TODO: Move this to a function (and in setup()?). Make sure that self.runFrame.log_dir is always converted
         # Cross-platform log_dir paths
         if rqd.rqconstants.ENABLE_LOG_DIR_PATHMAP:
             dst_log_root_conf = f"LOG_ROOT_DIR_{platform.system().upper()}"
@@ -760,9 +763,12 @@ class FrameAttendantThread(threading.Thread):
                     src_log_root = rqd.rqconstants.LOG_ROOT_DIR_DARWIN
 
             if dst_log_root == src_log_root:
-                log.debug("Source and destination log paths are identical. Skipping path mapping for %s", src_log_root)
+                msg = "Source and destination log paths are identical. \
+                Skipping path mapping for %s"
+                log.debug(msg, src_log_root)
             elif src_log_root:
-                log.debug("Path mapping enabled for log files. Replacing '%s' with '%s'", src_log_root, dst_log_root)
+                msg = "Path mapping enabled for log files. Replacing '%s' with '%s'"
+                log.debug(msg, src_log_root, dst_log_root)
                 self.runFrame.log_dir = self.runFrame.log_dir.replace(src_log_root ,dst_log_root)
             else:
                 log.warning("Skipping path mapping. %s is empty or undefined", dst_log_root_conf)
