@@ -427,6 +427,19 @@ def getFrameLogFile(job, frame):
     my_os = platform.system().lower()
     job_os = job.data.os.lower()
 
+    # If job has no defined os, infer from the job's log_dir
+    # Should match root defined in cuebot's --log.frame-log-root.default_os
+    if not job.data.os:
+        try:
+            os_matches = [k for k,v in cuegui.Constants.LOG_ROOT_OS.items()
+                          if job.data.log_dir.startswith(v)]
+
+            # Assume that all platform matches have the same defined root
+            job_os = os_matches[0]
+        except IndexError:
+            logger.warning("No root dir in render_logs.root matches path %s",
+                           job.data.log_dir)
+
     log_dir = job.data.log_dir
     if my_os != job_os and \
             my_os in cuegui.Constants.LOG_ROOT_OS and \
@@ -434,7 +447,9 @@ def getFrameLogFile(job, frame):
         log_dir = log_dir.replace(cuegui.Constants.LOG_ROOT_OS[job_os],
                                   cuegui.Constants.LOG_ROOT_OS[my_os], 1)
 
-    return os.path.join(log_dir, "%s.%s.rqlog" % (job.data.name, frame.data.name))
+    newpath = os.path.join(log_dir, "%s.%s.rqlog" % (job.data.name, frame.data.name))
+
+    return newpath
 
 
 def getFrameLLU(job, frame):
