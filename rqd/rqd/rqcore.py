@@ -741,6 +741,23 @@ class FrameAttendantThread(threading.Thread):
         self.rqlog = None
         self.recovery_mode = recovery_mode
 
+        log.info(vars(self.runFrame))
+        log.info(self.runFrame.log_dir)
+
+        if rqd.rqconstants.ENABLE_LOG_DIR_PATHMAP:
+            rf_log_root = None
+            if self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_LINUX):
+                rf_log_root = rqd.rqconstants.LOG_ROOT_DIR_LINUX
+            elif self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_WINDOWS):
+                rf_log_root = rqd.rqconstants.LOG_ROOT_DIR_WINDOWS
+            elif self.runFrame.log_dir.startswith(rqd.rqconstants.LOG_ROOT_DIR_DARWIN):
+                rf_log_root = rqd.rqconstants.LOG_ROOT_DIR_DARWIN
+
+            new_log_root = getattr(rqd.rqconstants, f"LOG_ROOT_DIR_{platform.system().upper()}")
+
+            log.info("Path mapping enabled for log files. Replacing '%s' with '%s'", rf_log_root, new_log_root)
+            self.runFrame.log_dir = self.runFrame.log_dir.replace(rf_log_root ,new_log_root)
+
     def __createEnvVariables(self):
         """Define the environmental variables for the frame"""
         # If linux specific, they need to move into self.runLinux()

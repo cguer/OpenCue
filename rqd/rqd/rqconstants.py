@@ -161,6 +161,12 @@ CONSOLE_LOG_LEVEL = logging.WARNING
 # Equal to or greater than the consoleLevel. None deactives logging to file
 FILE_LOG_LEVEL = None
 
+# Conform the log path job log paths for RQD's current OS
+ENABLE_LOG_DIR_PATHMAP = False
+LOG_ROOT_DIR_WINDOWS = None # ex: S:/
+LOG_ROOT_DIR_LINUX = None # ex: /shots
+LOG_ROOT_DIR_DARWIN = None # ex: /shots
+
 if subprocess.getoutput('/bin/su --help').find('session-command') != -1:
     SU_ARGUMENT = '--session-command'
 else:
@@ -241,6 +247,14 @@ try:
         if config.has_option(__override_section, "FILE_LOG_LEVEL"):
             level = config.get(__override_section, "FILE_LOG_LEVEL")
             FILE_LOG_LEVEL = logging.getLevelName(level)
+        if config.has_option(__override_section, "ENABLE_LOG_DIR_PATHMAP"):
+            ENABLE_LOG_DIR_PATHMAP = config.getboolean(__override_section, "ENABLE_LOG_DIR_PATHMAP")
+        if config.has_option(__override_section, "LOG_ROOT_DIR_LINUX"):
+            LOG_ROOT_DIR_LINUX = config.get(__override_section, "LOG_ROOT_DIR_LINUX")
+        if config.has_option(__override_section, "LOG_ROOT_DIR_WINDOWS"):
+            LOG_ROOT_DIR_WINDOWS = config.get(__override_section, "LOG_ROOT_DIR_WINDOWS")
+        if config.has_option(__override_section, "LOG_ROOT_DIR_DARWIN"):
+            LOG_ROOT_DIR_DARWIN = config.get(__override_section, "LOG_ROOT_DIR_DARWIN")
         if config.has_option(__override_section, "RQD_PREPEND_TIMESTAMP"):
             RQD_PREPEND_TIMESTAMP = config.getboolean(__override_section, "RQD_PREPEND_TIMESTAMP")
         if config.has_option(__override_section, "CHECK_INTERVAL_LOCKED"):
