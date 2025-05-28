@@ -859,6 +859,17 @@ class FrameAttendantThread(threading.Thread):
         @param command: The command specified in the runFrame request
         @rtype:  string
         @return: Command file location"""
+
+        # Expand $WORK_ROOT_DIR in command paths
+        # TODO: Temporary for testing. Needs proper code (generalized variable expansion?)
+        WORK_ROOT_DIR_VAR = '$WORK_ROOT_DIR'
+        WORK_ROOT_DIR = {'Linux': '/mnt/samba_work_g',
+                         'Windows': 'G:',
+                         'Darwin': '/Volumes/mnt/samba_work_g'}
+        new_root = WORK_ROOT_DIR[platform.system()]
+        command = command.replace(WORK_ROOT_DIR_VAR, new_root)
+        log.debug("Expanding %s path var to %s", WORK_ROOT_DIR_VAR, new_root)
+
         commandFile = ""
         try:
             if platform.system() == "Windows":
